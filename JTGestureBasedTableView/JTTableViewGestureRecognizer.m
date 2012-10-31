@@ -87,14 +87,20 @@ CGFloat const JTTableViewRowAnimationDuration          = 0.25;       // Rough gu
     indexPath = [self.tableView indexPathForRowAtPoint:location];
 
     if (indexPath && ! [indexPath isEqual:self.addingIndexPath]) {
-        [self.tableView beginUpdates];
-        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:self.addingIndexPath] withRowAnimation:UITableViewRowAnimationNone];
-        [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationNone];
-        [self.delegate gestureRecognizer:self needsMoveRowAtIndexPath:self.addingIndexPath toIndexPath:indexPath];
+      if ([self.delegate respondsToSelector:@selector(gestureRecognizer:canMoveRowAtIndexPath:toIndexPath:)]) {
+        if (![self.delegate gestureRecognizer:self canMoveRowAtIndexPath:self.addingIndexPath toIndexPath:indexPath]) {
+          return;
+        }
+      }
 
-        self.addingIndexPath = indexPath;
+      [self.tableView beginUpdates];
+      [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:self.addingIndexPath] withRowAnimation:UITableViewRowAnimationNone];
+      [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationNone];
+      [self.delegate gestureRecognizer:self needsMoveRowAtIndexPath:self.addingIndexPath toIndexPath:indexPath];
 
-        [self.tableView endUpdates];
+      self.addingIndexPath = indexPath;
+
+      [self.tableView endUpdates];
     }
 }
 
@@ -327,13 +333,12 @@ CGFloat const JTTableViewRowAnimationDuration          = 0.25;       // Rough gu
                              snapShotView.frame = CGRectOffset(snapShotView.bounds, rect.origin.x, rect.origin.y);
                          } completion:^(BOOL finished) {
                              [snapShotView removeFromSuperview];
-                             
+                           
                              [weakSelf.tableView beginUpdates];
                              [weakSelf.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationNone];
                              [weakSelf.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationNone];
                              [weakSelf.delegate gestureRecognizer:weakSelf needsReplacePlaceholderForRowAtIndexPath:indexPath];
                              [weakSelf.tableView endUpdates];
-                             
                              [weakSelf.tableView reloadVisibleRowsExceptIndexPath:indexPath];
                              // Update state and clear instance variables
                              weakSelf.cellSnapshot = nil;
