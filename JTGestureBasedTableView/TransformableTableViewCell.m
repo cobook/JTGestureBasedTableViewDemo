@@ -113,7 +113,7 @@
     // 05/07/2012 : Added by SungDong Kim 
     CGSize requiredLabelSize = [self.textLabel.text sizeWithFont:self.textLabel.font
                                                constrainedToSize:contentViewSize
-                                                   lineBreakMode:UILineBreakModeClip];
+                                                   lineBreakMode:NSLineBreakByClipping];
     self.imageView.frame = CGRectMake(((contentViewSize.width - requiredLabelSize.width)/2) - self.imageView.frame.size.width - 8, 
                                       contentViewSize.height - (labelHeight + self.imageView.frame.size.height)/2,
                                       self.imageView.frame.size.width,
